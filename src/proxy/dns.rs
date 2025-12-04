@@ -83,8 +83,12 @@ fn parse_domain_name(data: &[u8]) -> Option<(String, usize)> {
     let mut pos = 12;
     let mut domain = String::new();
     let start_pos = pos;
+    let mut loop_safety = 0;
     
     loop {
+        loop_safety += 1;
+        if loop_safety > 128 { return None; } // Safety break
+
         if pos >= data.len() { return None; }
         let len = data[pos] as usize;
         if len == 0 { 
