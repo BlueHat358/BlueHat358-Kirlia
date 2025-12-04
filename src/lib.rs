@@ -18,12 +18,13 @@ static PROXYKV_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"^([A-Z]{2})").un
 
 #[event(fetch)]
 async fn main(req: Request, env: Env, _: Context) -> Result<Response> {
+    console_error_panic_hook::set_once();
     let uuid = env
         .var("UUID")
         .map(|x| Uuid::parse_str(&x.to_string()).unwrap_or_default())?;
     let host = req.url()?.host().map(|x| x.to_string()).unwrap_or_default();
-    let main_page_url = env.var("MAIN_PAGE_URL").map(|x|x.to_string()).unwrap();
-    let sub_page_url = env.var("SUB_PAGE_URL").map(|x|x.to_string()).unwrap();
+    let main_page_url = env.var("MAIN_PAGE_URL").map(|x|x.to_string()).unwrap_or_else(|_| "https://google.com".to_string());
+    let sub_page_url = env.var("SUB_PAGE_URL").map(|x|x.to_string()).unwrap_or_else(|_| "https://google.com".to_string());
     let config = Config { uuid, host: host.clone(), proxy_addr: host, proxy_port: 443, main_page_url, sub_page_url };
 
     Router::with_data(config)
