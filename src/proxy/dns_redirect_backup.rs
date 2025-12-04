@@ -22,43 +22,29 @@ pub async fn handle_dns_request(mut req: Request, ctx: RouteContext<Config>) -> 
         // Check KV for blocked domain
         if let Ok(kv) = ctx.kv("DNS_CUSTOM") {
             if let Ok(Some(_)) = kv.get(&domain).text().await {
-                // Domain is blocked. Return NXDOMAIN (Name Error).
-                // This is a standard way to say "domain does not exist".
+                // Domain is blocked. Spoof response to point to bluehat358.biz.id
+                // We do this by querying 1.1.1.1 for bluehat358.biz.id instead of the original domain
+                // preserving the original QTYPE (A/AAAA) and Transaction ID.
                 
-                // Construct NXDOMAIN response
-                // Header (12 bytes)
-                // ID: Copy from request
-                // Flags: 0x8183 (QR=1, Opcode=0, AA=0, TC=0, RD=1, RA=1, Z=0, RCODE=3=NXDOMAIN)
-                // QDCOUNT: 1
-                // ANCOUNT: 0
-                // NSCOUNT: 0
-                // ARCOUNT: 0
+                let target_domain = "bluehat358.biz.id";
+                let new_qname = encode_domain_name(target_domain);
                 
-                let mut response = Vec::with_capacity(12 + qname_len + 4);
-                
-                // ID
-                response.extend_from_slice(&body[0..2]);
-                // Flags (Standard Response, Recursion Desired, Recursion Available, NXDOMAIN)
-                response.extend_from_slice(&[0x81, 0x83]);
-                // QDCOUNT (1)
-                response.extend_from_slice(&[0x00, 0x01]);
-                // ANCOUNT (0)
-                response.extend_from_slice(&[0x00, 0x00]);
-                // NSCOUNT (0)
-                response.extend_from_slice(&[0x00, 0x00]);
-                // ARCOUNT (0)
-                response.extend_from_slice(&[0x00, 0x00]);
-                
-                // Question Section (Copy from request)
-                // QNAME + QTYPE + QCLASS
-                let question_end = 12 + qname_len + 4;
-                if question_end <= body.len() {
-                    response.extend_from_slice(&body[12..question_end]);
+                // Construct new query: Header (12) + New QNAME + Tail (QTYPE/QCLASS)
+                // Original QNAME ends at 12 + qname_len
+                let tail_start = 12 + qname_len;
+                if tail_start <= body.len() {
+                    let mut new_query = Vec::new();
+                    new_query.extend_from_slice(&body[0..12]); // Header
+                    new_query.extend_from_slice(&new_qname);   // New QNAME
+                    new_query.extend_from_slice(&body[tail_start..]); // Tail (QTYPE, QCLASS, etc)
+                    
+                    // Send spoofed query
+                    let response_bytes = doh(&new_query).await?;
+                    
+                    let mut headers = Headers::new();
+                    headers.set("Content-Type", "application/dns-message")?;
+                    return Ok(Response::from_bytes(response_bytes)?.with_headers(headers));
                 }
-                
-                let mut headers = Headers::new();
-                headers.set("Content-Type", "application/dns-message")?;
-                return Ok(Response::from_bytes(response)?.with_headers(headers));
             }
         }
     }
@@ -99,4 +85,14 @@ fn parse_domain_name(data: &[u8]) -> Option<(String, usize)> {
     }
     
     Some((domain, pos - start_pos))
+}
+
+fn encode_domain_name(domain: &str) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    for label in domain.split('.') {
+        bytes.push(label.len() as u8);
+        bytes.extend_from_slice(label.as_bytes());
+    }
+    bytes.push(0);
+    bytes
 }
