@@ -1,0 +1,38 @@
+name: cf workers
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "README.md"
+      - "LICENSE.md"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: cf
+    steps:
+      - uses: actions/checkout@v4
+      - name: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+# Error:
+#       Finished `release` profile [optimized] target(s) in 2m 05s
+#     Installing /home/runner/.cargo/bin/worker-build
+#     Installing /home/runner/.cargo/bin/worker-codegen
+#      Installed package `worker-build v0.7.1` (executables `worker-build`, `worker-codegen`)
+#   [INFO]: 🎯  Checking for the Wasm target...
+#   info: downloading component 'rust-std' for 'wasm32-unknown-unknown'
+#   info: installing component 'rust-std' for 'wasm32-unknown-unknown'
+#   Error: Unsupported version worker@0.5.0, expected at least worker@0.7.1 in the Cargo.toml file:
+#   [dependencies]
+#   worker = "0.7.1"
+#   Either upgrade to worker@0.7.0, or use an older worker-build toolchain (e.g. by updating wrangler.toml to use `cargo install worker-build@^0.1`).
+#   ✘ [ERROR] Running custom build `cargo install worker-build && worker-build --release` failed. There are likely more logs from your build command above.
+#   🪵  Logs were written to "/home/runner/.config/.wrangler/logs/wrangler-2025-12-04_03-19-01_683.log"
+# Error: The process '/usr/local/bin/npx' failed with exit code 1
+# Error: 🚨 Action failed
