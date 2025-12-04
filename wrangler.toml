@@ -1,28 +1,16 @@
-name = "eevee"
+name = "kirlia"
 main = "build/worker/shim.mjs"
 compatibility_date = "2024-05-23"
 minify = true
 workers_dev = true
 
-routes = [
-  { pattern = "eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "ava.game.naver.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "df.game.naver.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "graph.instagram.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "zaintest.vuclip.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "support.zoom.us.eevee.bluehat358.biz.id", custom_domain = true },  
-  { pattern = "cache.netflix.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "quiz.int.vidio.com.eevee.bluehat358.biz.id", custom_domain = true },
-  { pattern = "img.email1.vidio.com.eevee.bluehat358.biz.id", custom_domain = true },
-]
-
 [[kv_namespaces]]
 binding = "kirlia"
-id = "550470a19aa14d338e4c7d8b03f40a73"
+id = "606a4d7ca235474e949bd5f16a048c6c"
 
 [[kv_namespaces]]
-binding = "DNS_CUSTOM"
-id = "f99532f5ce9c491284de13a9a549ac07"
+binding = "DNS_BLOCKLIST"
+id = "dbd1fe84d7ae4f3084c1017871842ec5"
 
 [build]
 command = "cargo install worker-build && worker-build --release"
