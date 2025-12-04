@@ -6,10 +6,17 @@ pub async fn doh(req_wireformat: &[u8]) -> Result<Vec<u8>> {
     headers.set("Accept", "application/dns-message")?;
     headers.set("Content-Type", "application/dns-message")?;
 
-    let mut response = Fetch::Url(Url::parse("https://1.1.1.1/dns-query")?)
-        .post_with_headers(req_wireformat, headers)?
-        .send()
-        .await?;
+    let mut request = Request::new_with_init(
+        "https://1.1.1.1/dns-query",
+        &RequestInit {
+            method: Method::Post,
+            headers,
+            body: Some(wasm_bindgen::JsValue::from(js_sys::Uint8Array::from(req_wireformat))),
+            ..Default::default()
+        },
+    )?;
+
+    let mut response = Fetch::Request(request).send().await?;
 
     Ok(response.bytes().await?)
 }
@@ -56,7 +63,7 @@ pub async fn handle_dns_request(mut req: Request, ctx: RouteContext<Config>) -> 
                     response.extend_from_slice(&body[12..question_end]);
                 }
                 
-                let mut headers = Headers::new();
+                let headers = Headers::new();
                 headers.set("Content-Type", "application/dns-message")?;
                 return Ok(Response::from_bytes(response)?.with_headers(headers));
             }
@@ -65,7 +72,7 @@ pub async fn handle_dns_request(mut req: Request, ctx: RouteContext<Config>) -> 
 
     let response_bytes = doh(&body).await?;
     
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Content-Type", "application/dns-message")?;
     
     Ok(Response::from_bytes(response_bytes)?.with_headers(headers))
