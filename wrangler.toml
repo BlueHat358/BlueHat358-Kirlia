@@ -1,19 +1,19 @@
-name = "kirlia"
+name = "eevee"
 main = "build/worker/shim.mjs"
 compatibility_date = "2024-05-23"
 minify = true
 workers_dev = true
 
 routes = [
-  { pattern = "kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "ava.game.naver.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "df.game.naver.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "graph.instagram.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "zaintest.vuclip.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "support.zoom.us.kirlia.bluehat358.biz.id", custom_domain = true },  
-  { pattern = "cache.netflix.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "quiz.int.vidio.com.kirlia.bluehat358.biz.id", custom_domain = true },
-  { pattern = "img.email1.vidio.com.kirlia.bluehat358.biz.id", custom_domain = true },
+  { pattern = "eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "ava.game.naver.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "df.game.naver.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "graph.instagram.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "zaintest.vuclip.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "support.zoom.us.eevee.bluehat358.biz.id", custom_domain = true },  
+  { pattern = "cache.netflix.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "quiz.int.vidio.com.eevee.bluehat358.biz.id", custom_domain = true },
+  { pattern = "img.email1.vidio.com.eevee.bluehat358.biz.id", custom_domain = true },
 ]
 
 [[kv_namespaces]]
